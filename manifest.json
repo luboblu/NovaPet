@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Dog Walker Extension",
+  "version": "1.0",
+  "description": "在網頁上隨機移動的小狗",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dog.gif", "dogHouse.png", "dogHouseWithDog.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
