@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Dog Walker Extension",
+  "name": "Dog Walker Extension with OpenAI",
   "version": "1.0",
-  "description": "在網頁上隨機移動的小狗",
+  "description": "利用 OpenAI API 生成狗狗對話",
+  "permissions": [],
+  "host_permissions": ["https://api.openai.com/*"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
