@@ -1,12 +1,13 @@
 // ================ 0. OpenAI API Key (教學示範用) ================
-const OPENAI_API_KEY = "請輸入你的Open ai api key"; 
+const OPENAI_API_KEY = "請輸入你的OPEN API KEY"; 
 // 請務必在 manifest.json 加上 "host_permissions": ["https://api.openai.com/*"]
 
-// ================ 0.1 生成狗狗對話的函式 ================
+
+// ================ 0.1 Generate dog dialogue (English version) ================
 async function generateDogDialogue(personality) {
-  // personality: "活潑又頑皮，喜歡跟人開玩笑" 
-  let systemMessage = `你的名字是小雞毛，你是一隻個性${personality}的小狗，說話要可愛、簡短、有趣。`;
-  let userMessage = `請你用最簡短可愛的中文說一句話，字數不超過10字。`;
+  // personality: "playful and mischievous, loves to joke around" 
+  let systemMessage = `Your name is Xiaojimao, a dog with a ${personality} personality. Speak in short, cute, and fun English lines.`;
+  let userMessage = `Please say the shortest and cutest English sentence in no more than 10 words.`;
 
   try {
     let response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -30,16 +31,55 @@ async function generateDogDialogue(personality) {
     if (data.choices && data.choices.length > 0) {
       return data.choices[0].message.content.trim();
     } else {
-      return "…（狗狗沉默了）";
+      return "...(The dog remains silent)";
     }
   } catch (err) {
-    console.error("OpenAI API 錯誤：", err);
-    return "…（發生錯誤）";
+    console.error("OpenAI API Error:", err);
+    return "...(An error occurred)";
   }
 }
 
-// 假設狗狗個性固定在這裡，您也可以讓使用者自行輸入
-let dogPersonality = "活潑又頑皮，喜歡跟人開玩笑";
+// For example:
+let dogPersonality = "playful and mischievous, loves to joke around";
+
+// 中文版本
+// async function generateDogDialogue(personality) {
+//   // personality: "活潑又頑皮，喜歡跟人開玩笑" 
+//   let systemMessage = `你的名字是小雞毛，你是一隻個性${personality}的小狗，說話要可愛、簡短、有趣。`;
+//   let userMessage = `請你用最簡短可愛的中文說一句話，字數不超過10字。`;
+
+//   try {
+//     let response = await fetch("https://api.openai.com/v1/chat/completions", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Authorization": `Bearer ${OPENAI_API_KEY}`
+//       },
+//       body: JSON.stringify({
+//         model: "gpt-3.5-turbo",
+//         messages: [
+//           { role: "system", content: systemMessage },
+//           { role: "user", content: userMessage }
+//         ],
+//         max_tokens: 50,
+//         temperature: 1.0
+//       })
+//     });
+
+//     let data = await response.json();
+//     if (data.choices && data.choices.length > 0) {
+//       return data.choices[0].message.content.trim();
+//     } else {
+//       return "…（狗狗沉默了）";
+//     }
+//   } catch (err) {
+//     console.error("OpenAI API 錯誤：", err);
+//     return "…（發生錯誤）";
+//   }
+// }
+
+// // 假設狗狗個性固定在這裡，您也可以讓使用者自行輸入
+// let dogPersonality = "活潑又頑皮，喜歡跟人開玩笑";
 
 // ================ 1. 建立狗狗容器 (可拖曳 + 會自動亂跑) ================
 let dogContainer = document.createElement('div');
@@ -72,20 +112,29 @@ dogDialog.style.padding = '5px 10px';
 dogDialog.style.transition = 'opacity 0.5s ease';
 dogDialog.style.opacity = '0';
 dogDialog.style.pointerEvents = 'none';
+
+// 關鍵：強制單行不換行
+dogDialog.style.whiteSpace = 'nowrap';
+dogDialog.style.display = 'inline-block';
+dogDialog.style.maxWidth = 'none';
+
 dogContainer.appendChild(dogDialog);
 
-// 改為透過 OpenAI 產生對話
-async function showDogDialogue() {
-  // 呼叫 generateDogDialogue() 取得AI生成文字
-  let aiDialogue = await generateDogDialogue(dogPersonality);
-  dogDialog.textContent = aiDialogue;
 
-  // 顯示對話框
+async function showDogDialogue() {
+  let aiDialogue = await generateDogDialogue(dogPersonality);
+
+  // 將換行符號統一替換成空白
+  aiDialogue = aiDialogue.replace(/\n/g, ' ');
+
+  dogDialog.textContent = aiDialogue;
   dogDialog.style.opacity = '1';
+
   setTimeout(() => {
     dogDialog.style.opacity = '0';
   }, 2000);
 }
+
 
 // ================ 3. 建立狗屋 ================
 let dogHouse = document.createElement('img');
@@ -98,26 +147,41 @@ dogHouse.style.bottom = '20px';
 dogHouse.style.zIndex = '9999';
 document.body.appendChild(dogHouse);
 
-// ================ 4. 自動亂跑邏輯 (這裡才設 transition = 'all 2s') ================
+// ================ 4. 自動亂跑邏輯 (這裡才設 transition) ================
 function moveDogRandomly() {
-  // 讓容器在「自動亂跑」時有 2 秒平滑動畫
-  dogContainer.style.transition = 'all 2s linear';
+  // 讓容器在「自動亂跑」時有 4 秒平滑動畫 (比原先2s更慢)
+  dogContainer.style.transition = 'all 4s linear';
 
   let x = Math.random() * (window.innerWidth - dogContainer.offsetWidth);
   let y = Math.random() * (window.innerHeight - dogContainer.offsetHeight);
   dogContainer.style.left = x + 'px';
   dogContainer.style.top = y + 'px';
 
-  // 移動後顯示AI對話
+  // 移動4秒後(等動畫結束)，再顯示AI對話並檢查狗屋
   setTimeout(() => {
-    showDogDialogue(); 
+    showDogDialogue();
     checkDogInHouse();
-  }, 2000);
+  }, 4000);
 }
 
-// 每3秒移動一次
-let moveInterval = setInterval(moveDogRandomly, 3000);
-moveDogRandomly();
+// 每6秒移動一次 (比原先3s更久)
+let moveInterval = setInterval(moveDogRandomly, 6000);
+
+// ================ 顯示AI對話 (顯示久一點) ================
+async function showDogDialogue() {
+  let aiDialogue = await generateDogDialogue(dogPersonality);
+  // 移除換行
+  aiDialogue = aiDialogue.replace(/\n/g, ' ');
+
+  dogDialog.textContent = aiDialogue;
+  dogDialog.style.opacity = '1';
+
+  // 原本2秒改為5秒才隱藏
+  setTimeout(() => {
+    dogDialog.style.opacity = '0';
+  }, 5000);
+}
+
 
 // ================ 5. 滑鼠拖曳 (在這裡 transition = 'none') ================
 let isDragging = false;
