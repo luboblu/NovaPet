@@ -2,13 +2,13 @@ console.log("🚀 popup.js has started");
 
 // 1️⃣ Firebase 初始化
 const firebaseConfig = {
-  apiKey: "AIzaSyAtCmjIEUK0tH4LI1mdCYAxRu9eqgKOWP4",
-  authDomain: "novapet-2b869.firebaseapp.com",
-  projectId: "novapet-2b869",
-  storageBucket: "novapet-2b869.firebasestorage.app",
-  messagingSenderId: "543837261919",
-  appId: "1:543837261919:web:0a0f279066b10006950bea",
-  measurementId: "G-HBNGMMDKCL"
+  apiKey: "",
+  authDomain: ",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
