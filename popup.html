@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>NovaPet</title>
+</head>
+<body>
+  <!-- 1. Adopt 畫面 -->
+  <div class="view active" id="view-adopt">
+    <div class="container">
+      <h1>NovaPet</h1>
+      <p>A story just for you begins here.</p>
+      <img src="images/dog.png" alt="Cute dog" class="dog-img" />
+      <input type="text" id="adoptName" placeholder="Enter your name" />
+      <button id="btnAdopt">Adopt this one</button>
+    </div>
+  </div>
+
+  <!-- 2. 顯示房間碼 -->
+  <div class="view" id="view-room">
+    <div class="container">
+      <h2>Welcome, <span id="userName"></span></h2>
+      <p>Your room code is:</p>
+      <div class="code" id="roomCode"></div>
+      <button id="btnExit">Exit space</button>
+    </div>
+  </div>
+
+  <!-- 3. 初始選單 -->
+  <div class="view" id="view-init">
+    <div class="container">
+      <h2>NovaPet</h2>
+      <button id="btnNew">Get a new dog</button>
+      <hr />
+      <button id="btnExisting">Take care of an existing dog</button>
+    </div>
+  </div>
+
+  <!-- 4. 輸入既有房間碼 -->
+  <div class="view" id="view-enter">
+    <div class="container">
+      <h2>Enter an existing space</h2>
+      <input type="text" id="enterCode" placeholder="Enter room code" />
+      <button id="btnEnter">Enter space</button>
+    </div>
+  </div>
+
+  <!-- UMD Compat SDK -->
+  <script src="vendor/firebase-compat/firebase-app-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-auth-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-firestore-compat.js"></script>
+  <!-- 主程式 -->
+  <script src="popup.js"></script>
+</body>
+</html>
