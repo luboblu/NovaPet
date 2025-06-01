@@ -1,14 +1,18 @@
 /* 全局設定 */
 html, body {
   margin: 0;
+  padding: 0;
   width: 360px;
-  font-family: Arial, sans-serif;
-  background: #fafafa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #A393EB;
   color: #333;
 }
+
 .view {
   display: none;
+  min-height: 400px;
 }
+
 .view.active {
   display: block;
 }
@@ -79,4 +83,658 @@ button + hr {
   margin: 10px 0;
   border: none;
   border-top: 1px solid #ddd;
+}
+
+/* 🎮 寵物互動介面樣式 */
+.pet-container {
+  width: 360px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  box-sizing: border-box;
+  margin: 0;
+  min-height: 400px;
+}
+
+.view.pet-container {
+  border-radius: 20px;
+  margin: 0;
+  padding: 20px;
+}
+
+/* 頂部資訊欄 */
+.header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 35px;
+  margin-bottom: 20px;
+  color: white;
+  padding-top: 10px;
+}
+
+.space-id {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-buttons::before {
+  content: '';
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.3);
+  margin: 0 10px;
+}
+
+.header-btn {
+  background: rgba(255,255,255,0.3);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 15px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: auto;
+  margin-bottom: 0;
+}
+
+.header-btn:hover {
+  background: rgba(255,255,255,0.5);
+  transform: translateY(-2px);
+}
+
+/* Space info 相關樣式 */
+.space-info {
+  padding-top: 5px;
+  font-size: 14px;
+}
+
+/* 寵物區域 */
+.pet-area {
+  text-align: center;
+  margin: 25px 0;
+}
+
+.pet-character {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.3);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.1);
+  padding: 5px;
+}
+
+.pet-character:hover {
+  animation-play-state: paused;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.5);
+}
+
+/* 圖片載入失敗時的備用樣式 */
+.pet-character:broken,
+.pet-character[src=""],
+.pet-character:not([src]) {
+  background: linear-gradient(45deg, #666, #888);
+  position: relative;
+}
+
+.pet-character:broken::after,
+.pet-character[src=""]:after,
+.pet-character:not([src])::after {
+  content: '🐕';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+}
+
+/* 寵物大小響應 */
+.pet-container.size-large .pet-character {
+  width: 120px;
+  height: 120px;
+  padding: 6px;
+}
+
+.pet-container.size-medium .pet-character {
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+}
+
+.pet-container.size-small .pet-character {
+  width: 80px;
+  height: 80px;
+  padding: 4px;
+}
+
+/* 寵物狀態動畫 */
+.pet-character.happy {
+  animation: 
+    bounce 15s cubic-bezier(0.45, 0, 0.55, 1) infinite,
+    microBounce 4s ease-in-out infinite;
+  animation-delay: 2s, 0s;  /* 為兩個動畫設置不同的延遲 */
+}
+
+.pet-character.sad {
+  filter: grayscale(0.3);
+  transform: scale(0.95);
+  transition: all 0.3s ease;
+}
+
+.pet-character.hungry {
+  animation: gentleShake 3s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 85% {
+    transform: translateY(0);
+  }
+  87% {
+    transform: translateY(-4px);
+  }
+  89% {
+    transform: translateY(-8px);
+  }
+  91% {
+    transform: translateY(-12px);
+  }
+  93% {
+    transform: translateY(-8px);
+  }
+  95% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes microBounce {
+  0%, 20%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  80% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes gentleShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px) rotate(-1deg);
+  }
+  75% {
+    transform: translateX(2px) rotate(1deg);
+  }
+}
+
+.pet-status {
+  background: rgba(255,255,255,0.2);
+  padding: 8px;
+  border-radius: 15px;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.pet-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.pet-mood {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* 資源欄 */
+.resources {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+
+.resource-item {
+  background: rgba(255,255,255,0.3);
+  padding: 6px 10px;
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 情緒指標 */
+.mood-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0 15px;
+}
+
+.mood-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+}
+
+.mood-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 4px;
+  margin: 0 10px;
+  position: relative;
+}
+
+.mood-progress {
+  height: 100%;
+  background: white;
+  border-radius: 4px;
+  width: 50%;
+  transition: width 0.3s ease;
+}
+
+/* 互動按鈕區域 */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 25px 0;
+}
+
+.action-btn {
+  background: rgba(255,255,255,0.9);
+  border: none;
+  padding: 15px 12px;
+  border-radius: 15px;
+  color: #FF8C00;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin-bottom: 0;
+}
+
+.action-btn:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.action-btn:active {
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* 特殊按鈕 - 跨兩列 */
+.action-btn.wide {
+  grid-column: span 2;
+}
+
+/* 底部設定區 */
+.settings {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.setting-btn {
+  background: rgba(255,255,255,0.3);
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0;
+}
+
+.setting-btn:hover {
+  background: rgba(255,255,255,0.5);
+  transform: scale(1.1);
+}
+
+/* 調整間距 */
+.pet-container.size-large .action-buttons {
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.pet-container.size-large .resources {
+  gap: 18px;
+  margin: 30px 0;
+}
+
+.pet-container.size-small .action-buttons {
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.pet-container.size-small .resources {
+  gap: 10px;
+  margin: 15px 0;
+}
+
+/* 調整頂部按鈕容器 */
+.top-buttons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 輸入框樣式統一 */
+#enterCode {
+  width: calc(100% - 16px);
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 大小切換按鈕 */
+.size-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+  z-index: 100;
+}
+
+.size-btn {
+  background: rgba(255,255,255,0.3);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 12px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: auto;
+  margin: 0;
+  min-width: 28px;
+}
+
+.size-btn:hover {
+  background: rgba(255,255,255,0.5);
+  transform: translateY(-2px);
+}
+
+.size-btn.active {
+  background: rgba(255,255,255,0.8);
+  color: #FF8C00;
+  font-weight: bold;
+}
+
+/* 響應式大小設定 - 調整內容大小而非整體縮放 */
+.pet-container.size-small {
+  padding: 15px;
+}
+
+.pet-container.size-small .header {
+  font-size: 0.9em;
+}
+
+.pet-container.size-small .action-btn {
+  padding: 12px 10px;
+  font-size: 11px;
+}
+
+.pet-container.size-small .resource-item {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.pet-container.size-medium {
+  padding: 20px;
+}
+
+.pet-container.size-medium .header {
+  font-size: 1em;
+}
+
+.pet-container.size-medium .action-btn {
+  padding: 15px 12px;
+  font-size: 12px;
+}
+
+.pet-container.size-medium .resource-item {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.pet-container.size-large {
+  padding: 25px;
+}
+
+.pet-container.size-large .header {
+  font-size: 1.1em;
+}
+
+.pet-container.size-large .action-btn {
+  padding: 18px 15px;
+  font-size: 13px;
+}
+
+.pet-container.size-large .resource-item {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* 初始畫面樣式 */
+.view#view-init {
+  background: linear-gradient(135deg, #A393EB, #8B77E0);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 30px;
+  box-sizing: border-box;
+}
+
+.container h1 {
+  color: white;
+  font-size: 32px;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-weight: bold;
+}
+
+.container p {
+  color: rgba(255,255,255,0.9);
+  font-size: 16px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.dog-img {
+  width: 180px;
+  height: 180px;
+  margin: 15px 0 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* 輸入框樣式 */
+#adoptName, #enterCode {
+  width: 100%;
+  max-width: 280px;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#adoptName:focus, #enterCode:focus {
+  outline: none;
+  background: white;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+#adoptName::placeholder, #enterCode::placeholder {
+  color: #999;
+}
+
+/* 按鈕樣式 */
+.primary-button {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  padding: 16px 20px;
+  border-radius: 100px;
+  color: #8B77E0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.primary-button:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 分隔線樣式 */
+hr {
+  border: none;
+  border-top: 2px solid rgba(255,255,255,0.2);
+  margin: 20px 0;
+  width: 100%;
+  max-width: 280px;
+}
+
+/* 容器樣式 */
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* 歡迎狗狗圖片 */
+.welcome-dog {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+.welcome-dog:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 條款文字 */
+.terms-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.terms-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+}
+
+.terms-link:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #fff;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.terms-link:hover:after {
+  transform: scaleX(1);
+}
+
+/* 分隔線 */
+.divider {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  margin: 15px 0;
+  font-weight: 500;
+}
+
+/* 副標題 */
+.subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-top: 5px;
+  font-weight: 400;
 }
