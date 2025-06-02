@@ -843,13 +843,29 @@ document.getElementById("btnEnter")?.addEventListener("click", async () => {
     const userNameEl = document.getElementById("userName");
     if (userNameEl) userNameEl.textContent = name;
 
-    chrome.storage.local.set({
-      roomCode: code,
-      userName: name,
-      petType: petTypeFromDB,
-    });
-    showView("view-room"); // Similar to adopt, avatar logic in DOMContentLoaded handles this.
-    console.log("[Popup] ✅ 成功加入房間:", code);
+    // 3. 寫入 storage，並在 callback 中呼叫 renderAvatarFromData() → 才真正把 avatar 塞進去
+    chrome.storage.local.set(
+      {
+        roomCode: code,
+        userName: name,
+        petType: petTypeFromDB,
+      },
+      () => {
+        console.log("[Popup] ✅ 已將 roomCode, userName, petType 存進 storage");
+        // 4. 讀出 storage 裡的新值並渲染 avatar 與文字，再切到 view-room
+        chrome.storage.local.get(
+          ["roomCode", "userName", "petType"],
+          (data) => {
+            renderAvatarFromData(data);
+            console.log(
+              "[Popup] ✅ renderAvatarFromData 已執行，畫面切到 view-room"
+            );
+          }
+        );
+      }
+    );
+    // 註：不要再寫 showView("view-room")，因為 renderAvatarFromData 裡已經包含了 showView
+    // console.log("[Popup] ✅ 成功加入房間:", code);
   } catch (error) {
     console.error("[Popup] ❌ 加入房間失敗:", error);
     showAlert("加入房間失敗，請稍後再試");
