@@ -3,6 +3,7 @@
   "name": "NovaPet - Virtual Dog Walker",
   "version": "1.0",
   "description": "NovaPet 虛擬寵物狗，可在桌面移動並與 OpenAI 對話",
+
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -11,23 +12,42 @@
       "128": "icons/icon128.png"
     }
   },
-  "permissions": ["storage", "activeTab", "scripting"],
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+
   "host_permissions": [
-    "https://*.firebaseio.com/",
-    "https://*.googleapis.com/",
-    "https://api.openai.com/*",
     "<all_urls>"
   ],
+
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_end"
+
+      "matches": ["<all_urls>", "file:///*"],
+
+      "js": [
+
+        "vendor/firebase-compat/firebase-app-compat.js",
+        "vendor/firebase-compat/firebase-auth-compat.js",
+        "vendor/firebase-compat/firebase-firestore-compat.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
+
   "web_accessible_resources": [
     {
-      "resources": ["images/dog.gif", "images/dogHouse.png", "images/dogHouseWithDog.png"],
+      "resources": [
+        "images/white.png",
+        "images/golden.png",
+        "images/dog.gif",
+        "images/dogHouse.png",
+        "images/dogHouseWithDog.png"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

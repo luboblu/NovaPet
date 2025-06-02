@@ -1,12 +1,11 @@
 console.log("🐕 NovaPet Content Script Loaded");
 
 // ================ 0. OpenAI API Key (可選功能) ================
-const OPENAI_API_KEY = ""; // 可以留空，如果沒有就使用預設對話
+const OPENAI_API_KEY = ""; // 如要開啟 AI 回應，可填入您的 API Key
 
-// ================ 0.1 狗狗對話生成 ================
+// ================ 0.1 預設狗狗對話生成 ================
 async function generateDogDialogue(personality, dogName, action = "") {
   let dialogue;
-  
   if (OPENAI_API_KEY) {
     try {
       dialogue = getDefaultDialogue(action);
@@ -17,11 +16,9 @@ async function generateDogDialogue(personality, dogName, action = "") {
   } else {
     dialogue = getDefaultDialogue(action);
   }
-  
   return dialogue;
 }
 
-// 預設對話庫
 function getDefaultDialogue(action) {
   const dialogues = {
     walk: ["汪汪！散步好開心～", "我要出去玩囉！", "汪！外面好好玩", "散步時間到～汪！"],
@@ -35,29 +32,40 @@ function getDefaultDialogue(action) {
     click: ["汪？你叫我嗎", "什麼事～", "我在這裡", "汪汪！"],
     default: ["汪汪～", "我好開心", "主人～陪我玩", "汪！愛你喔", "今天天氣真好", "我是乖狗狗"]
   };
-  
   const category = action ? action : 'default';
-  const selectedDialogues = dialogues[category] || dialogues.default;
-  return selectedDialogues[Math.floor(Math.random() * selectedDialogues.length)];
+  const arr = dialogues[category] || dialogues.default;
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// ================ 1. 同步移動狗狗管理系統 ================
+// ================ 1. 狗狗管理器 ================
 class DogManager {
   constructor() {
-    this.dogContainer = null;
-    this.dogDialog = null;
-    this.dogHouse = null;
-    this.controlPanel = null;
-    this.moveInterval = null;
-    this.syncInterval = null; // 新增：同步監控間隔
-    this.isDragging = false;
-    this.isFollowing = false;
-    this.controlPanelVisible = false;
-    this.panelOffset = { x: 120, y: 0 }; // 固定相對位置：狗狗右邊120px
-    this.dogData = {
-      name: 'NovaPet',
-      personality: '活潑友善'
-    };
+    this.dogContainer = null;        // 外層固定定位的容器
+    this.dogDialog = null;           // 對話氣泡
+    this.dogHouse = null;            // 狗屋圖示
+    this.controlPanel = null;        // 控制面板（絕對定位，相對於 dogContainer）
+    this.moveInterval = null;        // 隨機移動計時器
+    this.isDragging = false;         // 拖曳狀態
+    this.isFollowing = false;        // 跟隨滑鼠狀態
+    this.controlPanelVisible = false;// 面板開關狀態
+
+    // panelHorizontalMargin: 面板和狗狗之間的水平間距
+    // 當面板放左側時，會從 dogContainer 的左邊 -panelWidth - margin
+    // 如果放右側，會放在 dogWidth + margin 位置
+    this.panelHorizontalMargin = 10;
+
+    this.dogData = { name: 'NovaPet', personality: '活潑友善' };
+    this.dogType = 'dog1'; // 預設狗種，晚點從 storage 覆蓋
+  }
+
+  // 從 chrome.storage.local 讀 dogType
+  loadDogTypeFromStorage() {
+    return new Promise(resolve => {
+      chrome.storage.local.get(['dogType'], data => {
+        this.dogType = data.dogType || 'dog1';
+        resolve();
+      });
+    });
   }
 
   // 初始化狗狗
@@ -65,128 +73,125 @@ class DogManager {
     if (this.dogContainer) {
       this.removeDog();
     }
-
     this.dogData.name = dogName || 'NovaPet';
     this.dogData.personality = personality || '活潑友善';
+    await this.loadDogTypeFromStorage();
 
     await this.createDogElements();
     this.createControlPanel();
     this.setupEventListeners();
     this.startAutoMovement();
-    this.startSyncMonitor(); // 新增：啟動同步監控
-    
-    console.log(`🐕 ${this.dogData.name} 已經出現在桌面上！點擊狗狗顯示控制面板`);
+
+    console.log(`🐕 ${this.dogData.name} 已經出現在頁面上！點擊狗狗顯示控制面板`);
   }
 
-  // 新增：同步監控系統
-  startSyncMonitor() {
-    // 每 100ms 檢查一次位置同步
-    this.syncInterval = setInterval(() => {
-      if (this.controlPanelVisible && !this.isDragging) {
-        this.updateControlPanelPosition();
-      }
-    }, 100);
-  }
-
-  stopSyncMonitor() {
-    if (this.syncInterval) {
-      clearInterval(this.syncInterval);
-      this.syncInterval = null;
-    }
-  }
-
-  // 創建狗狗相關元素
+  // 建立狗狗及相關元素
   async createDogElements() {
-    // 1. 建立狗狗容器
+    // 1. 建立外層 dogContainer（固定定位）
     this.dogContainer = document.createElement('div');
-    this.dogContainer.style.position = 'fixed';
-    this.dogContainer.style.width = '100px';
-    this.dogContainer.style.height = 'auto';
-    this.dogContainer.style.zIndex = '10000';
-    this.dogContainer.style.pointerEvents = 'auto';
-    this.dogContainer.style.cursor = 'pointer';
-    this.dogContainer.style.transition = 'none';
-    
-    // 隨機初始位置
-    this.dogContainer.style.left = Math.random() * (window.innerWidth - 100) + 'px';
-    this.dogContainer.style.top = Math.random() * (window.innerHeight - 100) + 'px';
-    
+    Object.assign(this.dogContainer.style, {
+      position: 'fixed',
+      width: '100px',
+      height: 'auto',
+      zIndex: '10000',
+      pointerEvents: 'auto',
+      cursor: 'pointer',
+      transition: 'none',
+      // 隨機初始位置
+      left: `${Math.random() * (window.innerWidth - 100)}px`,
+      top: `${Math.random() * (window.innerHeight - 100)}px`
+    });
     document.body.appendChild(this.dogContainer);
 
-    // 2. 建立狗狗圖片
-    const dog = document.createElement('img');
-    dog.src = chrome.runtime.getURL('images/dog.gif');
-    dog.style.width = '100%';
-    dog.style.height = 'auto';
-    dog.style.borderRadius = '10px';
-    dog.style.transition = 'transform 0.3s ease';
-    dog.onerror = () => {
-      dog.style.display = 'none';
+    // 2. 放置狗狗圖片
+    const dogImg = document.createElement('img');
+    let imgPath = 'images/dog.gif';
+    if (this.dogType === 'dog1') {
+      imgPath = 'images/white.png';
+    } else if (this.dogType === 'dog2') {
+      imgPath = 'images/golden.png';
+    }
+    dogImg.src = chrome.runtime.getURL(imgPath);
+    Object.assign(dogImg.style, {
+      width: '100%',
+      height: 'auto',
+      borderRadius: '10px',
+      transition: 'transform 0.3s ease'
+    });
+    dogImg.onerror = () => {
+      dogImg.style.display = 'none';
       const dogEmoji = document.createElement('div');
-      dogEmoji.innerHTML = '🐕';
-      dogEmoji.style.fontSize = '80px';
-      dogEmoji.style.textAlign = 'center';
-      dogEmoji.style.transition = 'transform 0.3s ease';
+      dogEmoji.textContent = '🐕';
+      Object.assign(dogEmoji.style, {
+        fontSize: '80px',
+        textAlign: 'center',
+        transition: 'transform 0.3s ease'
+      });
       this.dogContainer.appendChild(dogEmoji);
     };
-    this.dogContainer.appendChild(dog);
+    this.dogContainer.appendChild(dogImg);
 
-    // 3. 建立對話框
+    // 3. 建立對話氣泡（相對定位於 dogContainer）
     this.dogDialog = document.createElement('div');
-    this.dogDialog.style.position = 'absolute';
-    this.dogDialog.style.left = '110px';
-    this.dogDialog.style.top = '0px';
-    this.dogDialog.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-    this.dogDialog.style.border = '2px solid #a855f7';
-    this.dogDialog.style.borderRadius = '15px';
-    this.dogDialog.style.padding = '8px 12px';
-    this.dogDialog.style.transition = 'opacity 0.5s ease';
-    this.dogDialog.style.opacity = '0';
-    this.dogDialog.style.pointerEvents = 'none';
-    this.dogDialog.style.whiteSpace = 'nowrap';
-    this.dogDialog.style.display = 'inline-block';
-    this.dogDialog.style.maxWidth = 'none';
-    this.dogDialog.style.fontSize = '14px';
-    this.dogDialog.style.fontWeight = 'bold';
-    this.dogDialog.style.color = '#333';
-    this.dogDialog.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+    Object.assign(this.dogDialog.style, {
+      position: 'absolute',
+      left: '110px',
+      top: '0px',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      border: '2px solid #a855f7',
+      borderRadius: '15px',
+      padding: '8px 12px',
+      transition: 'opacity 0.3s ease',
+      opacity: '0',
+      pointerEvents: 'none',
+      whiteSpace: 'nowrap',
+      fontSize: '14px',
+      fontWeight: 'bold',
+      color: '#333',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+    });
     this.dogContainer.appendChild(this.dogDialog);
 
-    // 4. 建立狗屋 (簡化版，隱藏)
+    // 4. 建立狗屋圖示 (固定在螢幕右上方)
     this.dogHouse = document.createElement('div');
-    this.dogHouse.innerHTML = '🏠';
-    this.dogHouse.style.position = 'fixed';
-    this.dogHouse.style.fontSize = '60px';
-    this.dogHouse.style.right = '20px';
-    this.dogHouse.style.top = '20px';
-    this.dogHouse.style.zIndex = '9999';
-    this.dogHouse.style.opacity = '0.3';
-    this.dogHouse.style.pointerEvents = 'none';
+    this.dogHouse.textContent = '🏠';
+    Object.assign(this.dogHouse.style, {
+      position: 'fixed',
+      fontSize: '60px',
+      right: '20px',
+      top: '20px',
+      zIndex: '9999',
+      opacity: '0.3',
+      pointerEvents: 'none'
+    });
     document.body.appendChild(this.dogHouse);
 
-    // 顯示歡迎對話
+    // 顯示第一句「散步」對話
     await this.showDogDialogue("walk");
   }
 
-  // 創建控制面板（初始隱藏）
+  // 建立控制面板：改為「絕對定位」並 append 到 dogContainer 裡
   createControlPanel() {
     this.controlPanel = document.createElement('div');
-    this.controlPanel.style.position = 'fixed';
-    this.controlPanel.style.width = '280px';
-    this.controlPanel.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-    this.controlPanel.style.borderRadius = '20px';
-    this.controlPanel.style.padding = '20px';
-    this.controlPanel.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.2)';
-    this.controlPanel.style.zIndex = '10001';
-    this.controlPanel.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    this.controlPanel.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-    
-    // 初始隱藏
-    this.controlPanel.style.opacity = '0';
-    this.controlPanel.style.pointerEvents = 'none';
-    this.controlPanel.style.transform = 'scale(0.8)';
-    this.controlPanel.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    Object.assign(this.controlPanel.style, {
+      position: 'absolute',        // 改成相對於 dogContainer
+      width: '280px',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderRadius: '20px',
+      padding: '20px',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+      zIndex: '10001',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      border: '1px solid rgba(168, 85, 247, 0.2)',
 
+      // 初始隱藏
+      opacity: '0',
+      pointerEvents: 'none',
+      transform: 'scale(0.8)',   // 縮到 0.8
+      transition: 'opacity 0.1s ease, transform 0.1s ease'
+    });
+
+    // 面板的 inner HTML
     this.controlPanel.innerHTML = `
       <div style="display: flex; align-items: center; margin-bottom: 15px;">
         <div style="flex: 1;">
@@ -203,41 +208,26 @@ class DogManager {
       </div>
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-        <button data-action="feed" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-          🍖 Feed
-        </button>
-        <button data-action="treat" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-          🦴 Treat
-        </button>
-        <button data-action="pet" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-          🤲 Pet
-        </button>
-        <button data-action="toy" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-          🎾 Toy
-        </button>
+        <button data-action="feed" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">🍖 Feed</button>
+        <button data-action="treat" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">🦴 Treat</button>
+        <button data-action="pet" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">🤲 Pet</button>
+        <button data-action="toy" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">🎾 Toy</button>
       </div>
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-        <button data-action="follow" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-          👣 Follow
-        </button>
-        <button data-action="stay" style="background: linear-gradient(135deg, #9ca3af, #6b7280); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-          ✋ Stay
-        </button>
+        <button data-action="follow" style="background: linear-gradient(135deg, #ff6b9d, #ff8cc8); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">👣 Follow</button>
+        <button data-action="stay" style="background: linear-gradient(135deg, #9ca3af, #6b7280); color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">✋ Stay</button>
       </div>
       
-      <button data-action="home" style="width: 100%; background: linear-gradient(135deg, #a855f7, #8b5cf6); color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 5px;">
-        🏠 Go back home
-      </button>
+      <button data-action="home" style="width: 100%; background: linear-gradient(135deg, #a855f7, #8b5cf6); color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 5px;">🏠 Go back home</button>
       
-      <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #999;">
-        點擊狗狗關閉面板
-      </div>
+      <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #999;">點擊狗狗關閉面板</div>
     `;
 
-    document.body.appendChild(this.controlPanel);
+    // 把 panel 放到 dogContainer 裡
+    this.dogContainer.appendChild(this.controlPanel);
 
-    // 為按鈕添加懸停效果
+    // 按鈕懸停效果
     const buttons = this.controlPanel.querySelectorAll('button[data-action]');
     buttons.forEach(btn => {
       btn.addEventListener('mouseenter', () => {
@@ -253,113 +243,115 @@ class DogManager {
     this.setupControlPanelEvents();
   }
 
-  // 新增：強制同步更新控制面板位置
+  /**
+   * updateControlPanelPosition(transition)
+   *
+   * 這裡不再操作 document.body 的 left/top，而是計算「相對於 dogContainer 的偏移」：
+   *  1. 先拿 dogContainer 在整個視窗的 left、top、width。
+   *  2. 計算 panelWidth、panelHeight。 margin 用 this.panelHorizontalMargin。
+   *  3. 先試放「左側」：panelLeftRelative = -(panelWidth + margin)。
+   *     ⇨ 若 dogContainer 的 dogLeft - (panelWidth + margin) < 0，就改放「右側」：
+   *     panelLeftRelative = dogWidth + margin
+   *  4. panelTopRelative = 0（與狗狗頂部對齊），若 dogTop + panelHeight 超出螢幕下邊，就 clamp：
+   *     panelTopRelative = Math.min(0, window.innerHeight - panelHeight - dogTop)
+   *  5. 最後設定 this.controlPanel.style.left/top（相對於 dogContainer）
+   */
   updateControlPanelPosition(transition = '') {
-    if (!this.dogContainer || !this.controlPanel || !this.controlPanelVisible) return;
+    if (!this.dogContainer || !this.controlPanel) return;
 
-    // 使用 requestAnimationFrame 確保獲取正確的位置
-    requestAnimationFrame(() => {
-      const dogStyle = this.dogContainer.style;
-      const dogLeft = parseInt(dogStyle.left) || 0;
-      const dogTop = parseInt(dogStyle.top) || 0;
-      
-      const panelWidth = 280;
-      const margin = 20;
+    const dogRect = this.dogContainer.getBoundingClientRect();
+    const dogLeft = dogRect.left;
+    const dogTop = dogRect.top;
+    const dogWidth = dogRect.width;
 
-      // 基於狗狗的 style 位置計算，而不是 getBoundingClientRect
-      let targetX = dogLeft + this.panelOffset.x;
-      let targetY = dogTop + this.panelOffset.y;
+    // 取得面板尺寸
+    const panelWidth = this.controlPanel.offsetWidth || 280;
+    const panelHeight = this.controlPanel.offsetHeight || 300;
+    const margin = this.panelHorizontalMargin;
 
-      // 檢查邊界並調整
-      if (targetX + panelWidth > window.innerWidth) {
-        targetX = dogLeft - panelWidth - margin;
-        this.panelOffset.x = -panelWidth - margin;
-      } else if (targetX < 0) {
-        targetX = dogLeft + 120;
-        this.panelOffset.x = 120;
-      }
+    // 先計算狗狗「左側」應該放的相對位置：-(panelWidth + margin)
+    let relLeft = -(panelWidth + margin);
 
-      if (targetY < 0) {
-        targetY = 0;
-      } else if (targetY + 300 > window.innerHeight) {
-        targetY = window.innerHeight - 300;
-      }
+    // 若放左側會跑出螢幕（dogLeft - panelWidth - margin < 0），就改放狗狗「右側」
+    if (dogLeft - (panelWidth + margin) < 0) {
+      relLeft = dogWidth + margin;
+    }
 
-      // 設置過渡效果
-      if (transition) {
-        this.controlPanel.style.transition = transition;
-      }
+    // 垂直位置先設定跟狗一樣頂端對齊
+    let relTop = 0;
 
-      // 強制同步位置
-      this.controlPanel.style.left = targetX + 'px';
-      this.controlPanel.style.top = targetY + 'px';
-    });
+    // 如果 dogTop + 0 + panelHeight > 視窗高度，就 clamp relTop：
+    if (dogTop + panelHeight > window.innerHeight) {
+      // 讓面板下緣剛好貼近視窗底部：relTop = window.innerHeight - panelHeight - dogTop
+      relTop = window.innerHeight - panelHeight - dogTop;
+      // 若仍 < 0 (面板比螢幕還高)，就強制 relTop = 0
+      if (relTop < 0) relTop = 0;
+    }
+
+    // 如果有傳 transition，就先套用到 panel
+    if (transition) {
+      this.controlPanel.style.transition = transition;
+    }
+
+    // 設定相對於 dogContainer 的定位
+    this.controlPanel.style.left = `${relLeft}px`;
+    this.controlPanel.style.top = `${relTop}px`;
   }
 
-  // 切換控制面板顯示
+  // 切換控制面板顯示/隱藏
   toggleControlPanel() {
     this.controlPanelVisible = !this.controlPanelVisible;
-    
+
     if (this.controlPanelVisible) {
-      // 顯示控制面板時立即同步位置
+      // 放大 & 淡入
+      this.controlPanel.style.transition = 'opacity 0.1s ease, transform 0.1s ease';
       this.controlPanel.style.opacity = '1';
       this.controlPanel.style.pointerEvents = 'auto';
       this.controlPanel.style.transform = 'scale(1)';
-      
-      // 強制立即更新位置
-      setTimeout(() => {
-        this.updateControlPanelPosition();
-      }, 0);
-      
-      // 狗狗說話
+      // 立刻更新位置（因為 dogContainer 可能動到邊界，所以要重新計算左右）
+      this.updateControlPanelPosition();
       this.showDogDialogue("click");
     } else {
-      // 隱藏控制面板
+      // 縮小 & 淡出
+      this.controlPanel.style.transition = 'opacity 0.1s ease, transform 0.1s ease';
       this.controlPanel.style.opacity = '0';
-      this.controlPanel.style.pointerEvents = 'none';
       this.controlPanel.style.transform = 'scale(0.8)';
+      this.controlPanel.style.pointerEvents = 'none';
     }
   }
 
-  // 設置控制面板事件
+  // 綁定面板按鈕事件
   setupControlPanelEvents() {
     this.controlPanel.addEventListener('click', async (e) => {
       const action = e.target.dataset.action;
       if (!action) return;
-
-      // 執行動作後隱藏控制面板
+      // 點擊後先收起面板
       this.controlPanelVisible = true;
       this.toggleControlPanel();
 
-      switch(action) {
+      switch (action) {
         case 'feed':
           await this.showDogDialogue("feed");
           this.addHappinessEffect('🍖');
           break;
-          
         case 'treat':
           await this.showDogDialogue("treat");
           this.addHappinessEffect('🦴');
           break;
-          
         case 'pet':
           await this.showDogDialogue("pet");
           this.addHappinessEffect('💝');
           break;
-          
         case 'toy':
           await this.showDogDialogue("toy");
           this.addHappinessEffect('🎾');
           break;
-          
         case 'follow':
           this.toggleFollowMode();
           break;
-          
         case 'stay':
           this.stayMode();
           break;
-          
         case 'home':
           await this.goHomeAnimation();
           break;
@@ -367,32 +359,32 @@ class DogManager {
     });
   }
 
-  // 回家動畫
+  // 回家動畫：狗與面板一起平滑移動
   async goHomeAnimation() {
     await this.showDogDialogue("home");
-    
-    // 停止所有移動
     this.stopAutoMovement();
     this.isFollowing = false;
-    
-    // 移動到右上角
+
+    // 先設定相同 transition 給 dogContainer，panel 只要在 dogContainer 裡，就會自動跟著移動
     this.dogContainer.style.transition = 'all 2s ease-in-out';
-    this.updateControlPanelPosition('all 2s ease-in-out'); // 控制面板同步移動
-    
-    this.dogContainer.style.right = '20px';
+
+    // 狗狗移到右上角（簡單用 top=20 + right=20）
     this.dogContainer.style.top = '20px';
     this.dogContainer.style.left = 'auto';
-    
-    // 2秒後開始淡出
+    this.dogContainer.style.right = '20px';
+
+    // 反白提示要將 panel 從絕對左/右兩邊重新計算
+    // 由於 dogContainer 已移到右上方，updateControlPanelPosition() 會自動把 panel 放到狗的左側（因為右側擺不下）
+    this.updateControlPanelPosition('all 2s ease-in-out');
+
     setTimeout(() => {
+      // 淡出效果
       this.dogContainer.style.opacity = '0';
       this.dogContainer.style.transform = 'scale(0.8)';
       if (this.controlPanelVisible) {
         this.controlPanel.style.opacity = '0';
         this.controlPanel.style.transform = 'scale(0.8)';
       }
-      
-      // 3秒後完全移除
       setTimeout(() => {
         this.removeDog();
         console.log(`🏠 ${this.dogData.name} 回家囉！`);
@@ -400,10 +392,9 @@ class DogManager {
     }, 2000);
   }
 
-  // 跟隨模式切換
+  // 切換跟隨滑鼠模式
   toggleFollowMode() {
     this.isFollowing = !this.isFollowing;
-    
     if (this.isFollowing) {
       this.stopAutoMovement();
       this.startFollowMode();
@@ -423,108 +414,98 @@ class DogManager {
     document.removeEventListener('mousemove', this.followMouse.bind(this));
   }
 
+  // 跟隨滑鼠：狗與面板同時做 0.8s 緩動
   followMouse(e) {
     if (!this.isFollowing || this.isDragging) return;
-    
     const targetX = e.clientX - 50;
     const targetY = e.clientY - 50;
-    
-    // 同步移動狗狗和控制面板
-    this.dogContainer.style.transition = 'all 0.8s ease-out';
-    this.dogContainer.style.left = Math.max(0, Math.min(window.innerWidth - 100, targetX)) + 'px';
-    this.dogContainer.style.top = Math.max(0, Math.min(window.innerHeight - 100, targetY)) + 'px';
 
-    // 立即同步控制面板位置
+    // 設定 dogContainer 的平滑移動
+    this.dogContainer.style.transition = 'all 0.8s ease-out';
+    this.dogContainer.style.left = `${Math.max(0, Math.min(window.innerWidth - 100, targetX))}px`;
+    this.dogContainer.style.top = `${Math.max(0, Math.min(window.innerHeight - 100, targetY))}px`;
+
+    // panel 會跟著 container 自動移動，但要重新計算左右
     this.updateControlPanelPosition('all 0.8s ease-out');
   }
 
-  // 停留模式
+  // 停留模式：暫停隨機移動
   stayMode() {
     this.stopAutoMovement();
     this.isFollowing = false;
     this.showDogDialogue("stay");
-    
     setTimeout(() => {
-      if (!this.isFollowing) {
-        this.startAutoMovement();
-      }
+      if (!this.isFollowing) this.startAutoMovement();
     }, 3000);
   }
 
-  // 設定事件監聽器
+  // 綁定狗狗的各項事件：點擊、拖曳、放開、懸停
   setupEventListeners() {
-    let offsetX = 0;
-    let offsetY = 0;
-    let clickTimer = null;
+    let offsetX = 0, offsetY = 0, clickTimer = null;
 
-    // 狗狗點擊事件
+    // 按下時判斷是否拖曳
     this.dogContainer.addEventListener('mousedown', (e) => {
       clickTimer = setTimeout(() => {
-        // 這是拖曳
         this.isDragging = true;
+        // 拖曳期間取消所有 transition
         this.dogContainer.style.transition = 'none';
+        this.controlPanel.style.transition = 'none';
         this.dogContainer.style.cursor = 'grabbing';
-
         const rect = this.dogContainer.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
       }, 150);
     });
 
+    // 放開時若沒有拖曳，就算點擊；若拖曳中，就結束拖曳
     this.dogContainer.addEventListener('mouseup', (e) => {
       if (clickTimer) {
         clearTimeout(clickTimer);
         clickTimer = null;
-        
         if (!this.isDragging) {
-          // 這是點擊
           e.stopPropagation();
           this.toggleControlPanel();
         }
       }
-      
       if (this.isDragging) {
         this.isDragging = false;
         this.dogContainer.style.cursor = 'pointer';
       }
     });
 
-    // 拖曳移動
+    // 拖曳過程：即時更新 dogContainer 與 panel 位置，無 transition
     document.addEventListener('mousemove', (e) => {
       if (!this.isDragging) return;
       e.preventDefault();
-
       let x = e.clientX - offsetX;
       let y = e.clientY - offsetY;
-
       x = Math.max(0, Math.min(window.innerWidth - this.dogContainer.offsetWidth, x));
       y = Math.max(0, Math.min(window.innerHeight - this.dogContainer.offsetHeight, y));
-
-      // 同步移動狗狗和控制面板
-      this.dogContainer.style.left = x + 'px';
-      this.dogContainer.style.top = y + 'px';
-
-      // 控制面板即時跟隨（無動畫）
+      // 更新狗的位置
+      this.dogContainer.style.left = `${x}px`;
+      this.dogContainer.style.top = `${y}px`;
+      // 透過無 transition 模式，讓 panel 緊貼
       this.updateControlPanelPosition('none');
     });
 
-    // 點擊其他地方隱藏控制面板
+    // 點擊到其他地方：如果 panel 是開啟，就把它關閉
     document.addEventListener('click', (e) => {
-      if (this.controlPanelVisible && 
-          !this.controlPanel.contains(e.target) && 
-          !this.dogContainer.contains(e.target)) {
+      if (
+        this.controlPanelVisible &&
+        !this.controlPanel.contains(e.target) &&
+        !this.dogContainer.contains(e.target)
+      ) {
         this.controlPanelVisible = true;
         this.toggleControlPanel();
       }
     });
 
-    // 狗狗懸停效果
+    // 懸停狗狗時放大
     this.dogContainer.addEventListener('mouseenter', () => {
       if (!this.isDragging) {
         this.dogContainer.querySelector('img, div').style.transform = 'scale(1.1)';
       }
     });
-
     this.dogContainer.addEventListener('mouseleave', () => {
       if (!this.isDragging) {
         this.dogContainer.querySelector('img, div').style.transform = 'scale(1)';
@@ -532,14 +513,11 @@ class DogManager {
     });
   }
 
-  // 自動移動
+  // 隨機移動：dogContainer 用 4s 線性動畫，panel 跟著 container 本身移動
   startAutoMovement() {
     if (this.moveInterval) return;
-    
     this.moveInterval = setInterval(() => {
-      if (!this.isFollowing) {
-        this.moveDogRandomly();
-      }
+      if (!this.isFollowing) this.moveDogRandomly();
     }, 6000);
   }
 
@@ -551,19 +529,19 @@ class DogManager {
   }
 
   async moveDogRandomly() {
-    if (this.isDragging || this.dogContainer.style.display === 'none' || this.isFollowing) return;
-
-    // 同步移動狗狗和控制面板
+    if (this.isDragging || !this.dogContainer || this.isFollowing) return;
     this.dogContainer.style.transition = 'all 4s linear';
-    
+
     const x = Math.random() * (window.innerWidth - this.dogContainer.offsetWidth);
     const y = Math.random() * (window.innerHeight - this.dogContainer.offsetHeight);
-    
-    this.dogContainer.style.left = x + 'px';
-    this.dogContainer.style.top = y + 'px';
+    // 先設定狗狗目標位置
+    this.dogContainer.style.left = `${x}px`;
+    this.dogContainer.style.top = `${y}px`;
 
-    // 立即同步控制面板位置
-    this.updateControlPanelPosition('all 4s linear');
+    // 由於 panel 是 dogContainer 的子元素，它會自動跟著移動
+    // 但要重新計算「左側或右側」，這裡也同步做一個無 transition 切換，
+    // 讓 panel 緊貼狗狗容器。如果放左側已經超出螢幕，就會切到右側。
+    this.updateControlPanelPosition('none');
 
     setTimeout(async () => {
       await this.showDogDialogue();
@@ -573,73 +551,60 @@ class DogManager {
   // 顯示對話
   async showDogDialogue(action = "") {
     if (!this.dogDialog) return;
-    
     const dialogue = await generateDogDialogue(this.dogData.personality, this.dogData.name, action);
-    
     this.dogDialog.textContent = dialogue;
     this.dogDialog.style.opacity = '1';
-
     setTimeout(() => {
-      if (this.dogDialog) {
-        this.dogDialog.style.opacity = '0';
-      }
+      if (this.dogDialog) this.dogDialog.style.opacity = '0';
     }, 3000);
   }
 
-  // 執行特定動作
+  // 處理 popup.js 傳來的指令
   async performAction(action, data = {}) {
     if (!this.dogContainer) return;
-
-    switch(action) {
+    switch (action) {
       case 'START_WALKING':
         await this.showDogDialogue("walk");
         break;
-        
       case 'FEED_DOG':
         await this.showDogDialogue("feed");
         this.addHappinessEffect('🍖');
         break;
-        
       case 'GIVE_TREAT':
         await this.showDogDialogue("treat");
         this.addHappinessEffect('🦴');
         break;
-        
       case 'PLAY_TOY':
         await this.showDogDialogue("toy");
         this.addHappinessEffect('🎾');
         break;
-        
       case 'GO_TO_PARK':
         this.parkMode();
         break;
     }
   }
 
-  // 添加開心效果
+  // 飛行表情動畫
   addHappinessEffect(emoji) {
     const effect = document.createElement('div');
     effect.innerHTML = emoji;
-    effect.style.position = 'absolute';
-    effect.style.top = '-30px';
-    effect.style.left = '50%';
-    effect.style.transform = 'translateX(-50%)';
-    effect.style.fontSize = '24px';
-    effect.style.zIndex = '10001';
-    effect.style.transition = 'all 2s ease';
-    effect.style.pointerEvents = 'none';
-    
+    Object.assign(effect.style, {
+      position: 'absolute',
+      top: '-30px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      fontSize: '24px',
+      zIndex: '10001',
+      transition: 'all 2s ease',
+      pointerEvents: 'none'
+    });
     this.dogContainer.appendChild(effect);
-    
     setTimeout(() => {
       effect.style.top = '-60px';
       effect.style.opacity = '0';
     }, 100);
-    
     setTimeout(() => {
-      if (effect.parentNode) {
-        effect.parentNode.removeChild(effect);
-      }
+      if (effect.parentNode) effect.parentNode.removeChild(effect);
     }, 2100);
   }
 
@@ -647,28 +612,21 @@ class DogManager {
   async parkMode() {
     this.stopAutoMovement();
     this.isFollowing = false;
-    
-    await this.showDogDialogue("我要在公園跑步～");
-    
+    await this.showDogDialogue("park");
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         this.moveDogRandomly();
       }, i * 2000);
     }
-    
     setTimeout(() => {
-      if (!this.isFollowing) {
-        this.startAutoMovement();
-      }
+      if (!this.isFollowing) this.startAutoMovement();
     }, 6000);
   }
 
-  // 移除狗狗
+  // 移除所有元素
   removeDog() {
     this.stopAutoMovement();
     this.stopFollowMode();
-    this.stopSyncMonitor(); // 停止同步監控
-    
     if (this.dogContainer) {
       this.dogContainer.remove();
       this.dogContainer = null;
@@ -681,26 +639,22 @@ class DogManager {
       this.controlPanel.remove();
       this.controlPanel = null;
     }
-    
-    console.log("🐕 狗狗已離開桌面");
+    console.log("🐕 狗狗已離開頁面");
   }
 }
 
-// ================ 2. 全局狗狗管理器 ================
+// ================ 2. 全域 DogManager 實例 ================
 const dogManager = new DogManager();
 
-// ================ 3. 監聽來自 popup 的消息 ================
+// ================ 3. 監聽 Popup 發送的訊息 ================
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("📨 收到來自 popup 的消息:", message);
-  
   const { action, dogName, personality } = message;
-  
-  switch(action) {
+  switch (action) {
     case 'START_WALKING':
       dogManager.initializeDog(dogName, personality);
       sendResponse({ success: true, message: `${dogName} 開始散步！點擊狗狗顯示控制面板` });
       break;
-      
     case 'FEED_DOG':
     case 'GIVE_TREAT':
     case 'PLAY_TOY':
@@ -708,20 +662,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       dogManager.performAction(action, message);
       sendResponse({ success: true, message: `${dogName} 執行了 ${action}` });
       break;
-      
     case 'REMOVE_DOG':
       dogManager.removeDog();
-      sendResponse({ success: true, message: '狗狗已離開' });
+      sendResponse({ success: true, message: '狗狗已離開頁面' });
       break;
-      
     default:
       sendResponse({ success: false, message: '未知的動作' });
   }
-  
   return true;
 });
 
-// ================ 4. 頁面載入完成後的初始化 ================
+// ================ 4. DOMContentLoaded 後 ================
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     console.log("🎯 NovaPet Content Script Ready");

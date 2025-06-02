@@ -4,7 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="popup.css" />
+  <!-- popup.html 中的 <head> 裡加入： -->
+  <script src="vendor/firebase-compat/firebase-app-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-auth-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="popup.css" />
   <title>NovaPet</title>
+
   <style>
     /* 預載入遮罩 - 防止載入時的閃爍 */
     .loading-overlay {
@@ -58,10 +64,23 @@
   <div class="view" id="view-adopt">
     <h1 class="adopt-title">NovaPet</h1>
     <p class="adopt-subtitle">A story just for you begins here.</p>
-    <div class="dog-img"></div>
-    <input type="text" class="name-input" id="adoptName" placeholder="Enter your name" />
-    <button class="main-button primary-button" id="btnAdopt">Adopt this one</button>
-    <button class="main-button back-btn" id="btnBackFromAdopt">Back</button>
+    <!-- view-adopt 內 -->
+<div class="dog-options-container">
+  <div class="dog-option" data-dog-type="dog1">
+    <div class="dog-img dog-img-1"></div>
+    <p class="dog-caption">狗狗 A</p>
+  </div>
+  <div class="dog-option" data-dog-type="dog2">
+    <div class="dog-img dog-img-2"></div>
+    <p class="dog-caption">狗狗 B</p>
+  </div>
+</div>
+<input type="text" class="name-input" id="adoptName" placeholder="Enter your name" />
+<!-- 這行隱藏欄位可選填，JS 裡也能直接存 selectedDogType 變數 -->
+<input type="hidden" id="selectedDogType" value="dog1" />
+<button class="main-button primary-button" id="btnAdopt">Adopt this one</button>
+<button class="main-button back-btn" id="btnBackFromAdopt">Back</button>
+
   </div>
 
   <!-- 3. 輸入既有房間碼 -->
@@ -100,12 +119,8 @@
 
     <div class="action-buttons">
       <button class="action-btn wide-btn">Go out for a walk & poop</button>
-      <button class="action-btn">Dog park</button>
-      <button class="action-btn">Send to daycare</button>
-      <button class="action-btn">Feed</button>
-      <button class="action-btn">Treat</button>
-      <button class="action-btn">Toy</button>
       <button class="action-btn" id="btnChat">Chat</button>
+      <button id="btnDonate" class="action-btn">Donate</button>
     </div>
   </div>
 
@@ -177,10 +192,7 @@
     </div>
   </div>
 
-  <!-- UMD Compat SDK -->
-  <script src="vendor/firebase-compat/firebase-app-compat.js"></script>
-  <script src="vendor/firebase-compat/firebase-auth-compat.js"></script>
-  <script src="vendor/firebase-compat/firebase-firestore-compat.js"></script>
+  
   <!-- 主程式 -->
   <script src="popup.js"></script>
 </body>
