@@ -420,10 +420,10 @@ class PetManager {
       <div style="display: flex; align-items: center; margin-bottom: 15px;">
         <div style="flex: 1;">
           <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 4px;">
-            ${this.petData.name} 控制台
+            ${this.petData.name} Control Panel
           </div>
           <div style="font-size: 12px; color: #666;">
-            虛擬寵物控制面板
+            Virtual Pet Control Panel
           </div>
         </div>
         <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
@@ -445,7 +445,7 @@ class PetManager {
       
       <button data-action="home" style="width: 100%; background: linear-gradient(135deg, #a855f7, #8b5cf6); color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 5px;">🏠 Go back home</button>
       
-      <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #999;">點擊寵物關閉面板</div>
+      <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #999;">Click pet to close panel</div>
     `;
 
     this.petContainer.appendChild(this.controlPanel);
