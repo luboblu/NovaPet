@@ -130,7 +130,7 @@ class PetManager  { // Renamed from DogManager
     
     this.dog1MoodImages = [ 
       'images/Dog_calm.png', 'images/Dog_confuse.png', 'images/Dog_excited.png',
-      'images/Dog_happy.png', 'images/Dog_sad.png', 'images/Dog_sleepy.png', 'images/white.png' 
+      'images/Dog_happy.png', 'images/Dog_sad.png', 'images/Dog_sleepy.png' 
     ];
     this.cat1MoodImages = [ 
       'images/Cat_calm.png', 'images/Cat_confuse.png', 'images/Cat_excited.png',
