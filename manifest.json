@@ -46,7 +46,19 @@
         "images/golden.png",
         "images/dog.gif",
         "images/dogHouse.png",
-        "images/dogHouseWithDog.png"
+        "images/dogHouseWithDog.png",
+        "images/Dog_calm.png",      
+      "images/Dog_confuse.png",   
+      "images/Dog_excited.png", 
+      "images/Dog_happy.png",   
+      "images/Dog_sad.png",     
+      "images/Dog_sleepy.png",
+       "images/Cat_calm.png",      
+      "images/Cat_confuse.png",   
+      "images/Cat_excited.png", 
+      "images/Cat_happy.png",   
+      "images/Cat_sad.png",     
+      "images/Cat_sleepy.png"    
       ],
       "matches": ["<all_urls>"]
     }

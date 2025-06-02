@@ -67,12 +67,12 @@
     <!-- view-adopt 內 -->
 <div class="dog-options-container">
   <div class="dog-option" data-dog-type="dog1">
-    <div class="dog-img dog-img-1"></div>
-    <p class="dog-caption">狗狗 A</p>
+    <div class="dog-img dog-img-1"></div> <!-- 這裡可以保持，或者用CSS指定背景圖 -->
+    <p class="dog-caption">Dog</p>
   </div>
-  <div class="dog-option" data-dog-type="dog2">
-    <div class="dog-img dog-img-2"></div>
-    <p class="dog-caption">狗狗 B</p>
+  <div class="dog-option" data-dog-type="cat1"> <!-- <<< 修改 data-dog-type 為 "cat1" -->
+    <div class="dog-img dog-img-cat1"></div> <!-- <<< 修改 class，方便CSS指定貓咪預覽圖 -->
+    <p class="dog-caption">Cat</p> <!-- <<< 修改文字描述 -->
   </div>
 </div>
 <input type="text" class="name-input" id="adoptName" placeholder="Enter your name" />
@@ -118,7 +118,7 @@
     </div>
 
     <div class="action-buttons">
-      <button class="action-btn wide-btn">Go out for a walk & poop</button>
+      <button class="action-btn wide-btn">Go out for a walk</button>
       <button class="action-btn" id="btnChat">Chat</button>
       <button id="btnDonate" class="action-btn">Donate</button>
     </div>
@@ -191,7 +191,49 @@
       </div>
     </div>
   </div>
-
+  <!-- 6. 捐款界面 -->
+<div class="view" id="view-donate">
+  <div class="donate-header">
+    <button class="back-donate-btn" id="btnBackFromDonate">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+      </svg>
+    </button>
+    <h2 class="donate-title">Support NovaPet</h2>
+  </div>
+  
+  <div class="donate-content">
+    <div class="donate-icon">💝</div>
+    
+    <div class="donate-message">
+      <p>Your support helps us create more magical moments with virtual pets!</p>
+      <p>Every contribution enables us to improve NovaPet and bring joy to more people.</p>
+    </div>
+    
+    <div class="donate-amounts">
+      <h3>Choose an amount:</h3>
+      <div class="amount-options">
+        <button class="amount-btn" data-amount="5">$5</button>
+        <button class="amount-btn" data-amount="10">$10</button>
+        <button class="amount-btn" data-amount="15">$15</button>
+        <button class="amount-btn" data-amount="20">$20</button>
+      </div>
+    </div>
+    
+    <div class="selected-amount-display">
+      Selected: <span id="selectedAmount">$0</span>
+    </div>
+    
+    <button class="donate-submit-btn" id="btnSubmitDonate">
+      Donate Now 💖
+    </button>
+    
+    <div class="donate-footer">
+      <p>Thank you for believing in our mission! 🐾</p>
+      <p class="secure-text">🔒 Secure donation (Demo only)</p>
+    </div>
+  </div>
+</div>
   
   <!-- 主程式 -->
   <script src="popup.js"></script>
