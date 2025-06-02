@@ -1,19 +1,33 @@
 {
   "manifest_version": 3,
-  "name": "Dog Walker Extension with OpenAI",
+  "name": "NovaPet - Virtual Dog Walker",
   "version": "1.0",
-  "description": "利用 OpenAI API 生成狗狗對話",
-  "permissions": [],
-  "host_permissions": ["https://api.openai.com/*"],
+  "description": "NovaPet 虛擬寵物狗，可在桌面移動並與 OpenAI 對話",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://*.firebaseio.com/",
+    "https://*.googleapis.com/",
+    "https://api.openai.com/*",
+    "<all_urls>"
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["dog.gif", "dogHouse.png", "dogHouseWithDog.png"],
+      "resources": ["images/dog.gif", "images/dogHouse.png", "images/dogHouseWithDog.png"],
       "matches": ["<all_urls>"]
     }
   ]

@@ -1,0 +1,627 @@
+/* 全局設定 */
+html, body {
+  margin: 0;
+  width: 400px;
+  height: 600px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+/* 確保所有元素使用 border-box */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 確保載入時的穩定性 */
+body.loading {
+  overflow: hidden;
+}
+
+.view {
+  display: none;
+  width: 100%;
+  height: 600px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.view.active {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+}
+
+/* 初始選單 - 紫色主題 */
+#view-init {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 30px;
+}
+
+.dog-icon {
+  width: 80px;
+  height: 80px;
+  background: #fbbf24;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  margin: 0 auto 40px;
+  position: relative;
+}
+
+.dog-icon::before {
+  content: '• •';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #000;
+}
+
+.dog-icon::after {
+  content: '•';
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: #000;
+}
+
+.terms-text {
+  color: rgba(255,255,255,0.8);
+  font-size: 12px;
+  margin-bottom: 30px;
+  line-height: 1.4;
+}
+
+.terms-text a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.main-button {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 24px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-button {
+  background: rgba(255,255,255,0.9);
+  color: #8b5cf6;
+}
+
+.secondary-button {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.main-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.main-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.or-text {
+  color: rgba(255,255,255,0.7);
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+/* 房間界面 - 藍色主題 */
+#view-room {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(255,255,255,0.1);
+}
+
+.space-info {
+  color: #fff;
+}
+
+.space-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.space-code {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.header-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.pet-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 20px 10px 20px;
+  min-height: 300px;
+}
+
+.pet-avatar {
+  width: 100px;
+  height: 100px;
+  background: #64748b;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  margin-bottom: 15px;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.pet-avatar::before {
+  content: '• •';
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  color: #000;
+}
+
+.pet-avatar::after {
+  content: '•';
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #000;
+}
+
+.pet-hat {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 25px;
+  background: #3b82f6;
+  border-radius: 50px;
+  border: 2px solid #fff;
+}
+
+.pet-name {
+  color: #64748b;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 10px 0 15px 0;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 20px 20px 20px;
+}
+
+/* Chat 按鈕放在最後一行的右邊 */
+#btnChat {
+  grid-column: 2;
+}
+
+.action-btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.9);
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.wide-btn {
+  grid-column: 1 / -1;
+}
+
+/* 領養畫面 */
+#view-adopt {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 30px;
+}
+
+.adopt-title {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.adopt-subtitle {
+  color: rgba(255,255,255,0.8);
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+.dog-img {
+  width: 120px;
+  height: 120px;
+  background: #fbbf24;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  margin: 0 auto 30px;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.dog-img::before {
+  content: '• •';
+  position: absolute;
+  top: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  color: #000;
+}
+
+.dog-img::after {
+  content: '•';
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #000;
+}
+
+.name-input {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  text-align: center;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  box-sizing: border-box;
+}
+
+.name-input::placeholder {
+  color: #999;
+}
+
+.name-input:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+}
+
+/* 輸入房間碼畫面 */
+#view-enter {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 30px;
+}
+
+.enter-title {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.code-input {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  text-align: center;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+
+.code-input::placeholder {
+  color: #999;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.code-input:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+}
+
+.back-btn {
+  background: transparent !important;
+  color: rgba(255,255,255,0.8) !important;
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  margin-top: 10px;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+}
+
+/* 聊天界面 */
+#view-chat {
+  background: #fff;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.chat-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #a855f7;
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #9333ea;
+  transform: scale(1.05);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.dog-avatar-small {
+  width: 32px;
+  height: 32px;
+  background: #64748b;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  margin-right: 12px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dog-avatar-small::before {
+  content: '• •';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 6px;
+  color: #000;
+}
+
+.dog-avatar-small::after {
+  content: '•';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4px;
+  color: #000;
+}
+
+.message-content {
+  background: #f3f4f6;
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 260px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.pet-name-small {
+  color: #a855f7;
+  font-weight: 600;
+}
+
+.user-name {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.user-typing .message-content {
+  background: #e0e7ff;
+}
+
+.chat-input-area {
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 25px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+
+.input-emoji {
+  padding: 12px 16px;
+  font-size: 18px;
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 0;
+  font-size: 14px;
+  outline: none;
+  color: #374151;
+}
+
+.chat-input::placeholder {
+  color: #9ca3af;
+}
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #a855f7;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-right: 4px;
+}
+
+.send-btn:hover {
+  background: #9333ea;
+  transform: scale(1.05);
+}
+
+.chat-hints {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.hint-title {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.hint-list {
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.6;
+}
+
+.hint-list li {
+  margin-bottom: 4px;
+}
+/* 輸入中提示 */
+.typing-indicator .typing-dots {
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+}
+
+.typing-indicator .typing-dots span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #a855f7;
+  margin: 0 2px;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator .typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator .typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

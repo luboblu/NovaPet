@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>NovaPet</title>
+  <style>
+    /* 預載入遮罩 - 防止載入時的閃爍 */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #a855f7, #8b5cf6);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .loading-overlay.hidden {
+      display: none;
+    }
+    body.loading {
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="loading">
+  <!-- 預載入遮罩 -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div style="color: white; text-align: center;">
+      <div style="width: 40px; height: 40px; background: #fbbf24; border-radius: 50%; margin: 0 auto 10px; position: relative;">
+        <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #000;">• •</div>
+        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); font-size: 6px; color: #000;">•</div>
+      </div>
+      <div style="font-size: 14px;">Loading...</div>
+    </div>
+  </div>
+
+  <!-- 1. 初始選單 -->
+  <div class="view active" id="view-init">
+    <div class="dog-icon"></div>
+    <div class="terms-text">
+      By continuing you confirm that you are over 13 and agree<br>
+      to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policies</a>
+    </div>
+    <button class="main-button primary-button" id="btnNew">Get a new dog</button>
+    <div class="or-text">or</div>
+    <button class="main-button secondary-button" id="btnExisting">Take care of an existing dog</button>
+    <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 20px;">
+      By entering an existing space
+    </div>
+  </div>
+
+  <!-- 2. 領養畫面 -->
+  <div class="view" id="view-adopt">
+    <h1 class="adopt-title">NovaPet</h1>
+    <p class="adopt-subtitle">A story just for you begins here.</p>
+    <div class="dog-img"></div>
+    <input type="text" class="name-input" id="adoptName" placeholder="Enter your name" />
+    <button class="main-button primary-button" id="btnAdopt">Adopt this one</button>
+    <button class="main-button back-btn" id="btnBackFromAdopt">Back</button>
+  </div>
+
+  <!-- 3. 輸入既有房間碼 -->
+  <div class="view" id="view-enter">
+    <h2 class="enter-title">Enter an existing space</h2>
+    <input type="text" class="code-input" id="enterCode" placeholder="Enter room code" />
+    <button class="main-button primary-button" id="btnEnter">Enter space</button>
+    <button class="main-button back-btn" id="btnBackFromEnter">Back</button>
+  </div>
+
+  <!-- 4. 房間界面 -->
+  <div class="view" id="view-room">
+    <div class="room-header">
+      <div class="space-info">
+        <div class="space-name">Space: <span id="roomCode">ABC123</span></div>
+        <div class="space-code">You can edit space name after you register as admin</div>
+      </div>
+      <div class="header-buttons">
+        <button class="header-btn">Invite friends</button>
+        <button class="header-btn" id="btnExit">Exit space</button>
+      </div>
+    </div>
+    
+    <div class="pet-area">
+      <div class="pet-avatar">
+        <div class="pet-hat"></div>
+      </div>
+      <div class="pet-name"><span id="userName">俊廷</span> is here</div>
+      
+      <div class="status-bar">
+        <div class="status-item">⭐ 152</div>
+        <div class="status-item">😊 30</div>
+        <div class="status-item">🔔 4</div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn wide-btn">Go out for a walk & poop</button>
+      <button class="action-btn">Dog park</button>
+      <button class="action-btn">Send to daycare</button>
+      <button class="action-btn">Feed</button>
+      <button class="action-btn">Treat</button>
+      <button class="action-btn">Toy</button>
+      <button class="action-btn" id="btnChat">Chat</button>
+    </div>
+  </div>
+
+  <!-- 5. 聊天界面 -->
+  <div class="view" id="view-chat">
+    <div class="chat-header">
+      <h2 class="chat-title">Chat</h2>
+      <button class="close-btn" id="btnCloseChat">×</button>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+      <div class="message">
+        <div class="dog-avatar-small"></div>
+        <div class="message-content">
+          <span class="pet-name-small">*Petted*</span> Woof! Keep petting me!
+        </div>
+      </div>
+      <div class="message">
+        <div class="dog-avatar-small"></div>
+        <div class="message-content">
+          <span class="pet-name-small">*Petted*</span> Arf, arf! More scratches, please!
+        </div>
+      </div>
+      <div class="message">
+        <div class="dog-avatar-small"></div>
+        <div class="message-content">
+          <span class="pet-name-small">*Petted*</span> Woof! Keep petting me!
+        </div>
+      </div>
+      <div class="message">
+        <div class="dog-avatar-small"></div>
+        <div class="message-content">
+          <span class="pet-name-small">*Petted*</span> Thanks for petting me!
+        </div>
+      </div>
+      <div class="message">
+        <div class="dog-avatar-small"></div>
+        <div class="message-content">
+          <span class="pet-name-small">*Petted*</span> You're the paw-somest petter!
+        </div>
+      </div>
+      <div class="message user-typing">
+        <div class="dog-avatar-small"></div>
+        <div class="message-content">
+          <span class="user-name">You</span> Woof! I hope you're doing well because I'm always here to make you happy! ♥
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="input-container">
+        <div class="input-emoji">🐾</div>
+        <input type="text" class="chat-input" id="chatInput" placeholder="Say something to your happy dog">
+        <button class="send-btn" id="btnSend">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="chat-hints">
+        <div class="hint-title">You can say anything to your happy dog. Just a few examples:</div>
+        <ul class="hint-list">
+          <li>Talk about how you feel today</li>
+          <li>Ask for help with your homework</li>
+          <li>Anything you want to talk to your friends about</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- UMD Compat SDK -->
+  <script src="vendor/firebase-compat/firebase-app-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-auth-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-firestore-compat.js"></script>
+  <!-- 主程式 -->
+  <script src="popup.js"></script>
+</body>
+</html>
