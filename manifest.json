@@ -13,23 +13,15 @@
     }
   },
 
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting"
-  ],
+  "permissions": ["storage", "activeTab", "scripting"],
 
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "host_permissions": ["<all_urls>"],
 
   "content_scripts": [
     {
-
       "matches": ["<all_urls>", "file:///*"],
 
       "js": [
-
         "vendor/firebase-compat/firebase-app-compat.js",
         "vendor/firebase-compat/firebase-auth-compat.js",
         "vendor/firebase-compat/firebase-firestore-compat.js",
@@ -47,18 +39,18 @@
         "images/dog.gif",
         "images/dogHouse.png",
         "images/dogHouseWithDog.png",
-        "images/Dog_calm.png",      
-      "images/Dog_confuse.png",   
-      "images/Dog_excited.png", 
-      "images/Dog_happy.png",   
-      "images/Dog_sad.png",     
-      "images/Dog_sleepy.png",
-       "images/Cat_calm.png",      
-      "images/Cat_confuse.png",   
-      "images/Cat_excited.png", 
-      "images/Cat_happy.png",   
-      "images/Cat_sad.png",     
-      "images/Cat_sleepy.png"    
+        "images/Dog_calm.png",
+        "images/Dog_confuse.png",
+        "images/Dog_excited.png",
+        "images/Dog_happy.png",
+        "images/Dog_sad.png",
+        "images/Dog_sleepy.png",
+        "images/Cat_calm.png",
+        "images/Cat_confuse.png",
+        "images/Cat_excited.png",
+        "images/Cat_happy.png",
+        "images/Cat_sad.png",
+        "images/Cat_sleepy.png"
       ],
       "matches": ["<all_urls>"]
     }
