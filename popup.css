@@ -1,0 +1,822 @@
+/* ============================
+   popup.css（完整檔案）
+   ============================ */
+
+/* 全局設定 */
+html,
+body {
+  margin: 0;
+  width: 400px;
+  height: 600px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #333;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body.loading {
+  overflow: hidden;
+}
+
+/* =================================
+   “View” 切換
+   ================================= */
+.view {
+  display: none;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  flex-direction: column;
+}
+
+.view.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* =================================
+   1. 初始選單（#view-init）
+   ================================= */
+#view-init {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 30px;
+}
+
+.dog-icon {
+  width: 80px;
+  height: 80px;
+  background: #fbbf24;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  margin: 0 auto 40px;
+  position: relative;
+}
+
+.dog-icon::before {
+  content: "• •";
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #000;
+}
+.dog-icon::after {
+  content: "•";
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: #000;
+}
+
+.terms-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  margin-bottom: 30px;
+  line-height: 1.4;
+}
+.terms-text a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.main-button {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 24px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.primary-button {
+  background: rgba(255, 255, 255, 0.9);
+  color: #8b5cf6;
+}
+.secondary-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.main-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.main-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.or-text {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+/* =================================
+   2. 房間界面（#view-room）
+   ================================= */
+#view-room {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.space-info {
+  color: #fff;
+}
+.space-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.space-code {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+.header-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.pet-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 20px 10px 20px;
+  min-height: 280px; /* Reduced to ensure buttons fit */
+  flex-grow: 1;
+}
+
+.pet-avatar {
+  width: 120px; /* Increased size */
+  height: 120px; /* Increased size */
+  background-color: rgba(255, 255, 255, 0.1); /* Faint bg for debugging */
+  /* border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; */ /* Original special shape */
+  border-radius: 50%; /* TEMPORARY: Standard circle for easier debugging */
+  margin-bottom: 15px;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 5px; /* Small padding */
+}
+
+.pet-avatar::before,
+.pet-avatar::after {
+  content: "" !important; /* Ensure pseudo-elements are empty */
+  display: none !important; /* And not displayed */
+}
+
+/* Styles for the dynamically added <img> inside .pet-avatar are set by JS */
+/* If you prefer CSS control, uncomment and adjust this:
+.pet-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+*/
+
+.pet-hat {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 25px;
+  background: #3b82f6;
+  border-radius: 50px;
+  border: 2px solid #fff;
+  z-index: 1;
+}
+
+.pet-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.status-bar {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 10px 0 15px 0;
+}
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px 20px 20px;
+}
+.action-buttons .action-btn {
+  width: 100%;
+  max-width: 260px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #38bdf8;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.action-buttons .action-btn:hover {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+#btnDonate {
+  background-color: #fecaca;
+  color: #b91c1c;
+}
+#btnDonate:hover {
+  background-color: #fca5a5;
+}
+
+/* =================================
+   4. 領養畫面（#view-adopt）
+   ================================= */
+#view-adopt {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 30px;
+}
+.adopt-title {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.adopt-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  margin-bottom: 30px;
+} /* Reduced margin */
+
+.dog-options-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 300px; /* Slightly reduced max-width */
+  margin-bottom: 25px; /* Reduced margin */
+  gap: 10px; /* Reduced gap */
+}
+.dog-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 8px; /* Reduced padding */
+  border-radius: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.dog-option:hover {
+  transform: scale(1.05);
+}
+.dog-option.selected {
+  box-shadow: 0 0 0 3px #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.dog-img {
+  width: 90px; /* Reduced size */
+  height: 90px; /* Reduced size */
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #eee;
+  background-size: cover;
+  background-position: center;
+}
+.dog-img-1 {
+  background-image: url("images/Dog_happy.png");
+}
+.dog-img-cat1 {
+  background-image: url("images/Cat_happy.png");
+}
+.dog-caption {
+  margin-top: 8px;
+  font-size: 13px; /* Slightly smaller font */
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  word-break: break-word;
+}
+
+.name-input {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 20px; /* Reduced padding */
+  margin-bottom: 15px; /* Reduced margin */
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+.name-input::placeholder {
+  color: #999;
+}
+.name-input:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.back-btn {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  margin-top: 10px;
+}
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* =================================
+   5. 輸入既有房間碼畫面（#view-enter）
+   ================================= */
+#view-enter {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 30px;
+}
+.enter-title {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+.code-input {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.code-input::placeholder {
+  color: #999;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.code-input:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* =================================
+   6. 聊天界面（#view-chat）
+   ================================= */
+#view-chat {
+  background: #fff;
+  height: 100%;
+}
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px; /* Reduced padding */
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+.chat-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+} /* Reduced font size */
+.close-btn {
+  width: 36px;
+  height: 36px; /* Reduced size */
+  border-radius: 50%;
+  background: #a855f7;
+  color: #fff;
+  border: none;
+  font-size: 20px; /* Reduced font size */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.close-btn:hover {
+  background: #9333ea;
+  transform: scale(1.05);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+} /* Reduced padding */
+.message {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+} /* Reduced margin */
+
+.dog-avatar-small,
+.user-avatar-small,
+.cat-avatar-small {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px; /* Reduced margin */
+  position: relative;
+  flex-shrink: 0;
+}
+.dog-avatar-small {
+  background: #64748b;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+.cat-avatar-small {
+  background: #a16207;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+} /* Example cat avatar color */
+.user-avatar-small {
+  background: #cbd5e1;
+  border-radius: 50%;
+}
+
+.dog-avatar-small::before,
+.cat-avatar-small::before {
+  content: "• •";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 6px;
+  color: #000;
+}
+.dog-avatar-small::after,
+.cat-avatar-small::after {
+  content: "•";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4px;
+  color: #000;
+}
+.user-avatar-small::before {
+  content: "👤";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #475569;
+}
+
+.message-content {
+  background: #f3f4f6;
+  padding: 10px 14px; /* Reduced padding */
+  border-radius: 18px;
+  max-width: 250px; /* Reduced max-width */
+  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 13px; /* Reduced font size */
+}
+.message.user-typing .message-content {
+  background: #e0e7ff;
+}
+.pet-name-small {
+  color: #a855f7;
+  font-weight: 600;
+}
+.user-name {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.chat-input-area {
+  padding: 15px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+} /* Reduced padding */
+.input-container {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 25px;
+  padding: 4px;
+  margin-bottom: 10px; /* Reduced margin */
+}
+.input-emoji {
+  padding: 10px 14px;
+  font-size: 16px;
+} /* Reduced padding & font */
+.chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 13px; /* Reduced padding & font */
+  outline: none;
+  color: #374151;
+}
+.chat-input::placeholder {
+  color: #9ca3af;
+}
+.send-btn {
+  width: 36px;
+  height: 36px; /* Reduced size */
+  border-radius: 50%;
+  background: #a855f7;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-right: 4px;
+}
+.send-btn svg {
+  width: 18px;
+  height: 18px;
+} /* Scale down SVG icon */
+.send-btn:hover {
+  background: #9333ea;
+  transform: scale(1.05);
+}
+
+.chat-hints {
+  font-size: 11px;
+  color: #6b7280;
+} /* Reduced font size */
+.hint-title {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.hint-list {
+  margin: 0;
+  padding-left: 14px;
+  line-height: 1.5;
+}
+.hint-list li {
+  margin-bottom: 3px;
+}
+
+.typing-indicator .typing-dots {
+  display: inline-flex;
+  align-items: center;
+  height: 15px;
+}
+.typing-indicator .typing-dots span {
+  display: inline-block;
+  width: 7px;
+  height: 7px; /* Reduced size */
+  border-radius: 50%;
+  background-color: #a855f7;
+  margin: 0 2px;
+  animation: typing 1.4s infinite ease-in-out;
+}
+.typing-indicator .typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-indicator .typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+@keyframes typing {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =================================
+   7. 捐款界面（#view-donate）
+   ================================= */
+#view-donate {
+  background: #fff;
+}
+.donate-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px; /* Reduced padding */
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+.back-donate-btn {
+  width: 36px;
+  height: 36px; /* Reduced size */
+  /* ... rest of back-donate-btn styles ... */
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-right: 15px;
+}
+.back-donate-btn svg {
+  width: 20px;
+  height: 20px;
+} /* Scale down SVG */
+.back-donate-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+.donate-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+} /* Reduced font size */
+
+.donate-content {
+  padding: 20px;
+  text-align: center;
+  overflow-y: auto;
+  flex: 1;
+} /* Reduced padding */
+.donate-icon {
+  font-size: 50px;
+  margin-bottom: 15px;
+  animation: pulse 2s infinite;
+} /* Reduced size */
+.donate-message {
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.donate-message p {
+  margin: 8px 0;
+}
+.donate-amounts h3 {
+  color: #374151;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.amount-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 8px;
+  margin-bottom: 15px;
+}
+.amount-btn {
+  padding: 12px 8px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.amount-btn:hover {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+.amount-btn.selected {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: #fff;
+  border-color: #f59e0b;
+}
+
+.selected-amount-display {
+  font-size: 16px;
+  color: #374151;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+#selectedAmount {
+  color: #f59e0b;
+  font-size: 20px;
+}
+.donate-submit-btn {
+  width: 100%;
+  max-width: 260px;
+  padding: 14px 20px;
+  /* ... rest of donate-submit-btn styles ... */
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.donate-submit-btn.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.donate-submit-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+}
+
+.donate-footer {
+  margin-top: 20px;
+  color: #6b7280;
+  font-size: 12px;
+}
+.donate-footer p {
+  margin: 4px 0;
+}
+.secure-text {
+  color: #10b981;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+/* Loading Overlay (already defined in HTML, but good to have here too for completeness) */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loading-overlay.hidden {
+  display: none;
+}
