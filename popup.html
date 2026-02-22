@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>NovaPet</title>
+</head>
+<body>
+  <!-- 1. Adopt 畫面 -->
+  <div class="view active" id="view-adopt">
+    <div class="container">
+      <h1>NovaPet</h1>
+      <p>A story just for you begins here.</p>
+      <img src="images/dog.png" alt="Cute dog" class="dog-img" />
+      <input type="text" id="adoptName" placeholder="Enter your name" />
+      <button id="btnAdopt">Adopt this one</button>
+    </div>
+  </div>
+
+  <!-- 2. 寵物互動介面 (新增) -->
+  <div class="view pet-container" id="view-pet">
+      <!-- 大小切換按鈕 -->
+      <div class="size-controls">
+          <button class="size-btn" id="size-small">S</button>
+          <button class="size-btn" id="size-medium">M</button>
+          <button class="size-btn" id="size-large">L</button>
+      </div>
+      
+      <!-- 頂部資訊欄 -->
+      <div class="header">
+        <div class="space-info">
+          <div>Space: <span class="space-id" id="roomCode"></span></div>
+          <div style="font-size: 12px; margin-top: 2px;">You can edit space name after you register as admin</div>
+        </div>
+        <div class="header-buttons">
+            <button class="header-btn" id="btn-chat">Chat</button>
+            <button class="header-btn" id="btn-memories">Memories</button>
+        </div>
+      </div>
+
+      <!-- 寵物區域 -->
+      <div class="pet-area">
+        <img src="images/dog.png" alt="Cute corgi" class="pet-character">
+        <div class="pet-status">
+          <div class="pet-name" id="petStatusText">Welcome to your pet space!</div>
+        </div>
+      </div>
+
+      <!-- 資源欄 -->
+      <div class="resources">
+        <div class="resource-item">
+          📖 Journal
+        </div>
+        <div class="resource-item">
+          ⭐ <span id="resource-experience">0</span>
+        </div>
+        <div class="resource-item">
+          💝 <span id="resource-level">1</span>
+        </div>
+        <div class="resource-item">
+          🪙 <span id="resource-coins">100</span>
+        </div>
+      </div>
+
+      <!-- 情緒指標 -->
+      <div class="mood-indicator">
+        <span class="mood-label">Sad</span>
+        <div class="mood-bar">
+          <div class="mood-progress"></div>
+        </div>
+        <span class="mood-label">Happy</span>
+      </div>
+
+      <!-- 互動按鈕 -->
+      <div class="action-buttons">
+        <button class="action-btn" id="btn-feed">
+          <span class="btn-icon">🍽️</span>
+          <span>Feed</span>
+        </button>
+        <button class="action-btn" id="btn-treat">
+          <span class="btn-icon">🍖</span>
+          <span>Treat</span>
+        </button>
+        <button class="action-btn" id="btn-toy">
+          <span class="btn-icon">🧸</span>
+          <span>Toy</span>
+        </button>
+        <button class="action-btn" id="btn-park">
+          <span class="btn-icon">🏞️</span>
+          <span>Dog park</span>
+        </button>
+        <button class="action-btn" id="btn-daycare">
+          <span class="btn-icon">🏫</span>
+          <span>Send to daycare</span>
+        </button>
+        <button class="action-btn wide" id="btn-walk">
+          <span class="btn-icon">🚶‍♂️</span>
+          <span>Go out for walk & poop</span>
+        </button>
+      </div>
+
+      <!-- 底部設定 -->
+      <div class="settings">
+        <button class="setting-btn">💝</button>
+        <button class="setting-btn" id="btnExit">🚪</button>
+        <button class="setting-btn">☀️</button>
+      </div>
+  </div>
+
+  <!-- 3. 初始選單 -->
+  <div id="view-init" class="view active">
+    <div class="container">
+        <img src="images/dog.png" alt="Cute dog" class="welcome-dog">
+        
+        <div class="terms-text">
+            By continuing you confirm that you are over 13 and agree to our 
+            <a href="#" class="terms-link">Terms of Use</a> and 
+            <a href="#" class="terms-link">Privacy Policies</a>
+        </div>
+
+        <button id="btnNew" class="primary-button">Get a new dog</button>
+        
+        <div class="divider">or</div>
+        
+        <button id="btnExisting" class="primary-button">Take care of an existing dog</button>
+        <div class="subtitle">By entering an existing space</div>
+    </div>
+  </div>
+
+  <!-- 4. 輸入既有房間碼 -->
+  <div id="view-enter" class="view">
+    <div class="container">
+      <h2>Enter an existing space</h2>
+      <input type="text" id="enterCode" placeholder="Enter room code" />
+      <button id="btnEnter">Enter space</button>
+    </div>
+  </div>
+
+  <!-- 隱藏的用戶名稱元素，供JS使用 -->
+  <span id="userName" style="display: none;"></span>
+
+  <!-- UMD Compat SDK -->
+  <script src="vendor/firebase-compat/firebase-app-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-auth-compat.js"></script>
+  <script src="vendor/firebase-compat/firebase-firestore-compat.js"></script>
+  <!-- 主程式 -->
+  <script src="popup.js"></script>
+</body>
+</html>
